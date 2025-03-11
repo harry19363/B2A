@@ -115,7 +115,7 @@ lix_reg #(
 
 // A_r
 generate
-	for(i = 0; i < N_SHARES; i = i+1)
+	for(i = 0; i < N_SHARES - 1; i = i+1)
 		lix_shr0 #(
 			.W(K_WIDTH),
 			.N(29)  // 1 + 14 + 12 + 2
