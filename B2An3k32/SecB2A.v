@@ -97,7 +97,7 @@ generate
 			.rst_ni(rst_ni),
 			.i_vld(dvld_init0),
 			.i_en(i_rvld),
-			.i_x(~A[i*K_WIDTH +: K_WIDTH] + 1'b1),
+			.i_x(-A[i*K_WIDTH +: K_WIDTH]),
 			.o_z(An[i*K_WIDTH +: K_WIDTH])
 			);
 endgenerate
