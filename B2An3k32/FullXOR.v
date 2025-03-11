@@ -9,14 +9,14 @@ module FullXOR #(
 	parameter LAYERS = $clog2(N_SHARES),
 	parameter RANDNUM = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K
 	)(
-	input clk_i,
-	input rst_ni,
-	input i_dvld,
-	input i_rvld,
-	input [K_WIDTH*RANDNUM-1:0] i_n,
-	input [MASKWIDTH-1:0] i_x,
-	output [K_WIDTH-1:0] o_z,
-	output o_dvld
+	input wire clk_i,
+	input wire rst_ni,
+	input wire i_dvld,
+	input wire i_rvld,
+	input wire [K_WIDTH*RANDNUM-1:0] i_n,
+	input wire [MASKWIDTH-1:0] i_x,
+	output wire [K_WIDTH-1:0] o_z,
+	output wire o_dvld
 	);
 
 wire [MASKWIDTH-1:0] x_r[0:LAYERS-1];  // for register i_x

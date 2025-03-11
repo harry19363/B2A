@@ -13,14 +13,14 @@ module SecB2A #(
 	parameter RAND_FXOR = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K,
 	parameter RANDNUM = RAND_INIT + RAND_A2B + RAND_KSA + RAND_FXOR
 	)(
-	input clk_i,
-	input rst_ni,
-	input i_dvld,
-	input i_rvld,
-	input [K_WIDTH * RANDNUM - 1:0] i_n,
-	input [MASKWIDTH-1:0] i_b,
-	output [MASKWIDTH-1:0] o_a,
-	output o_dvld
+	input wire clk_i,
+	input wire rst_ni,
+	input wire i_dvld,
+	input wire i_rvld,
+	input wire [K_WIDTH * RANDNUM - 1:0] i_n,
+	input wire [MASKWIDTH-1:0] i_b,
+	output wire [MASKWIDTH-1:0] o_a,
+	output wire o_dvld
 );
 
 wire [MASKWIDTH-K_WIDTH-1:0] A;
