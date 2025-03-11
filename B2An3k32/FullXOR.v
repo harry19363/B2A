@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 
+(* DONT_TOUCH = "yes" *)
 module FullXOR #(
 	parameter K_WIDTH = 32,
 	parameter N_SHARES = 3,
