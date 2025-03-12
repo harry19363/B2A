@@ -17,6 +17,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 
 
+`ifndef SIM
+`define SIM
+`endif
 
 `default_nettype none
 `timescale 1ns/1ps
@@ -31,7 +34,6 @@ module lix_reg #(
     output wire  [W-1:0] o_z);
 
 `ifdef SIM
-
   reg [W-1:0] data;
   genvar i;
   generate
@@ -49,8 +51,6 @@ module lix_reg #(
     
   end
   endgenerate
-
-
 
 `elsif FPGA
 

@@ -27,7 +27,8 @@ logic            clk_i;
 logic            rst_ni;
 logic            i_dvld;
 logic            i_rvld;
-logic  [11615:0] i_n;
+// logic  [11615:0] i_n;
+logic  [11327:0] i_n;
 logic    [255:0] i_a;
 logic    [255:0] o_z;
 logic            o_dvld;
@@ -56,11 +57,15 @@ end
 
 initial
 begin
-  i_n = 11616'd0;
+  i_n = 'd0;
   repeat (15) @(posedge clk_i);
   forever begin
+  // repeat(1) begin
     @(posedge clk_i);
-    for(int i = 0 ; i < 363 ; i++)begin
+    // for(int i = 0 ; i < 363 ; i++)begin
+      // i_n[i*32+:32] = $random;
+    // end
+	for(int i = 0 ; i < 354 ; i++)begin
       i_n[i*32+:32] = $random;
     end
   end
@@ -72,6 +77,7 @@ begin
   a = 256'd0;
   repeat (15) @(posedge clk_i);
   forever begin
+  // repeat(1) begin
     @(posedge clk_i);
     for(int i = 0 ; i < 8 ; i++)begin
       a[i*32+:32] = $random;
@@ -109,8 +115,19 @@ assign i_a[192+:32] = a[192+:32];
 assign i_a[224+:32] = a[224+:32];
 assign i_dvld = dvld;
 assign i_rvld = rvld;
-SecA2B_n8k32_1
-  dut_SecA2B_n8k32_1
+// SecA2B_n8k32_1
+  // dut_SecA2B_n8k32_1
+   // (.clk_i  (clk_i),
+    // .rst_ni (rst_ni),
+    // .i_dvld (i_dvld),
+    // .i_rvld (i_rvld),
+    // .i_n    (i_n),
+    // .i_a    (i_a),
+    // .o_z    (o_z),
+    // .o_dvld (o_dvld));
+	
+SecA2Bn8
+  dut_SecA2Bn8
    (.clk_i  (clk_i),
     .rst_ni (rst_ni),
     .i_dvld (i_dvld),
@@ -180,7 +197,7 @@ always@(negedge rst_ni or posedge clk_i) begin
     shd_A_d[23] <= shd_A_d[22];
   end
 end
-assign A_d[31:0] = shd_A_d[23];
+assign A_d[31:0] = shd_A_d[19];
 
 
 assign pass = B[ 0+:32]  ==  A_d[ 0+:32];
