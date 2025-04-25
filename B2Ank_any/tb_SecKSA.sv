@@ -1,10 +1,10 @@
 `timescale 1ns / 100ps
 
-module tb_SecAND();
+module tb_SecKSA();
 localparam K_WIDTH = 32;
 localparam N_SHARES = 8;
 localparam MASKWIDTH = K_WIDTH * N_SHARES;
-localparam RANDNUM = N_SHARES * (N_SHARES-1);
+localparam RANDNUM = 2 * $clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1);
 
 logic clk, rst_n;
 logic ena;
@@ -18,7 +18,7 @@ logic [MASKWIDTH-1:0] z;
 logic [K_WIDTH-1 : 0] x_src;
 logic [K_WIDTH-1 : 0] y_src;
 logic [K_WIDTH-1 : 0] z_ref;
-logic [K_WIDTH-1 : 0] z_ref_reg;
+logic [K_WIDTH-1 : 0] z_ref_reg [0 : $clog2(K_WIDTH-1)];
 logic [K_WIDTH-1 : 0] z_result;
 logic [K_WIDTH-1 : 0] x_probe [0 : N_SHARES-1];
 logic [K_WIDTH-1 : 0] y_probe [0 : N_SHARES-1];
@@ -26,10 +26,10 @@ logic [K_WIDTH-1 : 0] y_probe [0 : N_SHARES-1];
 logic correct;
 
 
-SecAND #(
+SecKSA #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
-	) SECAND0(
+	) SECKSA0(
 	.clk(clk),
 	.rst_n(rst_n),
 	.dvld(dvld),
@@ -79,14 +79,24 @@ begin
 	end
 end
 
-assign z_ref = x_src & y_src;
-
 always @(posedge clk, negedge rst_n)
 begin
-	z_ref_reg <= (~rst_n) ? 'b0 : z_ref;
+	if(~rst_n) begin
+		for(i = 0; i < $clog2(K_WIDTH-1)+1; i = i + 1) begin
+			z_ref_reg[i] <= 'b0;
+		end
+	end
+	else begin
+		z_ref_reg[0] <= x_src + y_src;
+		for(i = 0; i < $clog2(K_WIDTH-1); i = i + 1) begin
+			z_ref_reg[i + 1] <= z_ref_reg[i];
+		end
+	end
 end
 
-assign correct = (z_ref_reg == z_result);
+assign z_ref = z_ref_reg[$clog2(K_WIDTH-1)];
+
+assign correct = (z_ref == z_result);
 
 always @(*)
 begin
