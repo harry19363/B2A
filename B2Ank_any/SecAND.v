@@ -91,7 +91,7 @@ lix_reg #(
 	) u1_reg(
 	.clk_i(clk),
 	.rst_ni(rst_n),
-	.i_vld(ena),
+	.i_vld(1'b1),
 	.i_en(ena),
 	.i_x(dvld),
 	.o_z(ovld)
