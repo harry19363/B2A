@@ -3,12 +3,12 @@
 
 module SecB2A #(
 	parameter K_WIDTH = 32,
-	parameter N_SHARES = 8,
+	parameter N_SHARES = 3,
 	parameter MASKWIDTH = K_WIDTH * N_SHARES,
 	// A2B: CSA=(n-2)*SecAnd, KSA=2log(k-1)*SecAnd; B2A: KSA=2log(k-1)*SecAnd, FullXOR=, INIT=(n-1)
 	parameter LOG_K = $clog2(N_SHARES+1) - 1,
 	parameter RAND_INIT = N_SHARES - 1,
-	parameter RAND_CSA = 148,
+	parameter RAND_CSA = 6,
 	parameter RAND_KSA = 2*$clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1),
 	parameter RAND_A2B = RAND_CSA + RAND_KSA,
 	parameter RAND_FXOR = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K,
@@ -25,7 +25,7 @@ module SecB2A #(
 );
 
 localparam DELAY_AND = 1;
-localparam DELAY_CSA = 4 * DELAY_AND;
+localparam DELAY_CSA = 1 * DELAY_AND;
 localparam DELAY_KSA = ($clog2(K_WIDTH-1) + 1) * DELAY_AND;
 
 wire [MASKWIDTH - K_WIDTH - 1 : 0] A;
@@ -87,7 +87,7 @@ generate
 endgenerate
 	
 // A2B
-SecA2B_n8 #(
+SecA2B_n3 #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
 	) SECA2B0(
@@ -116,7 +116,7 @@ SecKSA #(
     .ovld(vld_KSA));
 
 // FullXOR
-FullXOR_n8 #(
+FullXOR_n3 #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
 	) FXOR(

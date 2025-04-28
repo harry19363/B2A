@@ -1,9 +1,13 @@
 `timescale 1ns / 100ps
 
+/*
+For simulation of module FullXOR, 
+only localparams incluing K_WIDTH, N_SHARES, and instance of FullXOR_n need be modified accordingly
+*/
 module tb_FullXOR();
 
 localparam K_WIDTH = 32;
-localparam N_SHARES = 8;
+localparam N_SHARES = 5;
 localparam MASKWIDTH = K_WIDTH * N_SHARES;
 localparam LOG_K = $clog2(N_SHARES+1) - 1;
 localparam LAYERS = $clog2(N_SHARES);
@@ -75,7 +79,7 @@ end
 
 assign correct = ovld ? (z_ref == z_result) : 1'b0;
 
-FullXOR_n8 #(
+FullXOR_n5 #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
 	) FULLXOR(

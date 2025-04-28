@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 
 (* DONT_TOUCH = "yes" *)
-module FullXOR_n8 #(
+module FullXOR_n5 #(
 	parameter K_WIDTH = 32,
-	parameter N_SHARES = 8,
+	parameter N_SHARES = 5,
 	parameter MASKWIDTH = K_WIDTH * N_SHARES,
 	parameter LOG_K = $clog2(N_SHARES+1) - 1,
 	parameter LAYERS = $clog2(N_SHARES),
@@ -25,87 +25,82 @@ wire [MASKWIDTH-1:0] xxn [0:LAYERS-1];  // x XOR n
 
 wire [K_WIDTH-1:0] tmp[0 : N_SHARES - 2];  // for final XOR result
 
-// x, for N = 8
+// x, for N = 5
 
 // layer0
 genvar i;
-generate 
-	for(i = 0; i < 4; i = i + 1) begin
-		lix_xor #(
-			.W(K_WIDTH)
-			) u0_xor(
-			.i_x(i_x[(i*2)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[i*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[0][(i*2)*K_WIDTH +: K_WIDTH])
-			);
-		lix_xor #(
-			.W(K_WIDTH)
-			) u1_xor(
-			.i_x(i_x[(i*2 + 1)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[i*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[0][(i*2 + 1)*K_WIDTH +: K_WIDTH])
-			);
-	end
-endgenerate
+lix_xor #(
+	.W(K_WIDTH)
+	) u0_xor(
+	.i_x(i_x[0*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[0*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[0][0*K_WIDTH +: K_WIDTH])
+	);
+lix_xor #(
+	.W(K_WIDTH)
+	) u1_xor(
+	.i_x(i_x[1*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[0*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[0][1*K_WIDTH +: K_WIDTH])
+	);
+
+assign xxn[0][2*K_WIDTH +: K_WIDTH] = i_x[2*K_WIDTH +: K_WIDTH];
+
+lix_xor #(
+	.W(K_WIDTH)
+	) u2_xor(
+	.i_x(i_x[3*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[1*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[0][3*K_WIDTH +: K_WIDTH])
+	);
+lix_xor #(
+	.W(K_WIDTH)
+	) u3_xor(
+	.i_x(i_x[4*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[1*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[0][4*K_WIDTH +: K_WIDTH])
+	);
 
 // layer1
-generate 
-	for(i = 0; i < 2; i = i + 1) begin
-		lix_xor #(
-			.W(K_WIDTH)
-			) u2_xor(
-			.i_x(xxn[0][i*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(4 + i)*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[1][i*K_WIDTH +: K_WIDTH])
-			);
-		lix_xor #(
-			.W(K_WIDTH)
-			) u3_xor(
-			.i_x(xxn[0][(i+2)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(4 + i)*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[1][(i+2)*K_WIDTH +: K_WIDTH])
-			);
-	end
-endgenerate
-
-generate 
-	for(i = 0; i < 2; i = i + 1) begin
-		lix_xor #(
-			.W(K_WIDTH)
-			) u4_xor(
-			.i_x(xxn[0][(i+4)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(6 + i)*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[1][(i+4)*K_WIDTH +: K_WIDTH])
-			);
-		lix_xor #(
-			.W(K_WIDTH)
-			) u5_xor(
-			.i_x(xxn[0][(i+4+2)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(6 + i)*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[1][(i+4+2)*K_WIDTH +: K_WIDTH])
-			);
-	end
-endgenerate
+lix_xor #(
+	.W(K_WIDTH)
+	) u4_xor(
+	.i_x(xxn[0][2*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[2*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[1][2*K_WIDTH +: K_WIDTH])
+	);
+lix_xor #(
+	.W(K_WIDTH)
+	) u5_xor(
+	.i_x(xxn[0][3*K_WIDTH +: K_WIDTH]),
+	.i_y(rnd[2*K_WIDTH +: K_WIDTH]),
+	.o_z(xxn[1][3*K_WIDTH +: K_WIDTH])
+	);
+	
+assign xxn[1][0*K_WIDTH +: K_WIDTH] = xxn[0][0*K_WIDTH +: K_WIDTH];
+assign xxn[1][1*K_WIDTH +: K_WIDTH] = xxn[0][1*K_WIDTH +: K_WIDTH];
+assign xxn[1][4*K_WIDTH +: K_WIDTH] = xxn[0][4*K_WIDTH +: K_WIDTH];
 
 // layer2
 generate 
-	for(i = 0; i < 4; i = i + 1) begin
+	for(i = 0; i < 2; i = i + 1) begin
 		lix_xor #(
 			.W(K_WIDTH)
 			) u6_xor(
 			.i_x(xxn[1][i*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(8 + i)*K_WIDTH +: K_WIDTH]),
+			.i_y(rnd[(3 + i)*K_WIDTH +: K_WIDTH]),
 			.o_z(xxn[2][i*K_WIDTH +: K_WIDTH])
 			);
 		lix_xor #(
 			.W(K_WIDTH)
 			) u7_xor(
-			.i_x(xxn[1][(i+4)*K_WIDTH +: K_WIDTH]),
-			.i_y(rnd[(8 + i)*K_WIDTH +: K_WIDTH]),
-			.o_z(xxn[2][(i+4)*K_WIDTH +: K_WIDTH])
+			.i_x(xxn[1][(i+2)*K_WIDTH +: K_WIDTH]),
+			.i_y(rnd[(3 + i)*K_WIDTH +: K_WIDTH]),
+			.o_z(xxn[2][(i+2)*K_WIDTH +: K_WIDTH])
 			);
 	end
 endgenerate
+assign xxn[2][4*K_WIDTH +: K_WIDTH] = xxn[1][4*K_WIDTH +: K_WIDTH];
 
 // register
 generate

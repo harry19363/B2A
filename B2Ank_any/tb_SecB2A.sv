@@ -1,5 +1,9 @@
 `timescale 1ns / 100ps
 
+/*
+For simulation of module SecB2A,
+only localparams including K_WIDTH, N_SHARES, RAND_CSA, DELAY_CSA need be modified accordingly
+*/
 module tb_SecB2A();
 
 localparam K_WIDTH = 32;
@@ -7,108 +11,21 @@ localparam K_WIDTH = 32;
 localparam DELAY_AND = 1;
 localparam DELAY_KSA = ($clog2(K_WIDTH-1) + 1) * DELAY_AND;
 
-/*
-// N_SHARES = 3
-localparam N_SHARES = 3;
-localparam MASKWIDTH = K_WIDTH * N_SHARES;
-localparam RANDNUM = 6 + 2 * $clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1);
-
-localparam DELAY_CSA = DELAY_AND;
-
-logic clk, rst_n;
-logic dvld, ena;
-logic [MASKWIDTH-1 : 0] i_a;
-logic [MASKWIDTH-1 : 0] o_z;
-logic ovld;
-logic [RANDNUM*K_WIDTH-1 : 0] rnd;
-
-SecA2B_n3 #(
-	.K_WIDTH(K_WIDTH),
-	.N_SHARES(N_SHARES)
-	) SECA2BN3(
-	.clk(clk),
-	.rst_n(rst_n),
-	.dvld(dvld),
-	.ena(ena),
-	.rnd(rnd),
-	.i_a(i_a),
-	.o_z(o_z),
-	.ovld(ovld)
-	);
-*/
-
-/*
-// N_SHARES = 4
-localparam N_SHARES = 4;
-localparam MASKWIDTH = K_WIDTH * N_SHARES;
-localparam RANDNUM = 18 + 2 * $clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1);
-
-localparam DELAY_CSA = 2 * DELAY_AND;
-
-logic clk, rst_n;
-logic dvld, ena;
-logic [MASKWIDTH-1 : 0] i_a;
-logic [MASKWIDTH-1 : 0] o_z;
-logic ovld;
-logic [RANDNUM*K_WIDTH-1 : 0] rnd;
-
-SecA2B_n4 #(
-	.K_WIDTH(K_WIDTH),
-	.N_SHARES(N_SHARES)
-	) SECA2BN4(
-	.clk(clk),
-	.rst_n(rst_n),
-	.dvld(dvld),
-	.ena(ena),
-	.rnd(rnd),
-	.i_a(i_a),
-	.o_z(o_z),
-	.ovld(ovld)
-	);
-*/
-
-/*
-// N_SHARES = 5
-localparam N_SHARES = 5;
-localparam MASKWIDTH = K_WIDTH * N_SHARES;
-localparam RANDNUM = 38 + 2 * $clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1);
-
-localparam DELAY_CSA = 3 * DELAY_AND;
-
-logic clk, rst_n;
-logic dvld, ena;
-logic [MASKWIDTH-1 : 0] i_a;
-logic [MASKWIDTH-1 : 0] o_z;
-logic ovld;
-logic [RANDNUM*K_WIDTH-1 : 0] rnd;
-
-SecA2B_n5 #(
-	.K_WIDTH(K_WIDTH),
-	.N_SHARES(N_SHARES)
-	) SECA2BN5(
-	.clk(clk),
-	.rst_n(rst_n),
-	.dvld(dvld),
-	.ena(ena),
-	.rnd(rnd),
-	.i_a(i_a),
-	.o_z(o_z),
-	.ovld(ovld)
-	);
-*/
-
 // N_SHARES = 8
-localparam N_SHARES = 8;
+localparam N_SHARES = 3;
+// localparam N_SHARES = 8;
 localparam MASKWIDTH = K_WIDTH * N_SHARES;
 localparam LOG_K = $clog2(N_SHARES+1) - 1;
 localparam RAND_INIT = N_SHARES - 1;
-localparam RAND_CSA = 148;
+localparam RAND_CSA = 6;
+// localparam RAND_CSA = 148;
 localparam RAND_KSA = 2*$clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1);
 localparam RAND_A2B = RAND_CSA + RAND_KSA;
 localparam RAND_FXOR = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K;
 localparam RANDNUM = RAND_INIT + RAND_A2B + RAND_KSA + RAND_FXOR;
 
-localparam DELAY_CSA = 4 * DELAY_AND;
+localparam DELAY_CSA = 1 * DELAY_AND;
+// localparam DELAY_CSA = 4 * DELAY_AND;
 
 logic clk, rst_n;
 logic dvld, ena;
@@ -136,8 +53,8 @@ SecB2A #(
 logic [K_WIDTH-1 : 0] a_probe [0 : N_SHARES-1];
 logic [K_WIDTH-1 : 0] z_probe [0 : N_SHARES-1];
 logic [K_WIDTH-1 : 0] z_result;
-logic [K_WIDTH-1 : 0] z_ref_t;
 logic [K_WIDTH-1 : 0] z_ref;
+logic [K_WIDTH-1 : 0] z_ref_t;
 logic [K_WIDTH-1 : 0] z_ref_reg [0 : DELAY_CSA + 2 * DELAY_KSA];
 
 logic correct;
