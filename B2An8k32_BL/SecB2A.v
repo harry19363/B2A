@@ -8,7 +8,7 @@ module SecB2A #(
 	// A2B: CSA=(n-2)*SecAnd, KSA=2log(k-1)*SecAnd; B2A: KSA=2log(k-1)*SecAnd, FullXOR=, INIT=(n-1)
 	parameter LOG_K = $clog2(N_SHARES+1) - 1,
 	parameter RAND_INIT = N_SHARES - 1,
-	parameter RAND_CSA = 74,
+	parameter RAND_CSA = 83,
 	parameter RAND_KSA = 2*$clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1)/2,
 	parameter RAND_A2B = RAND_CSA + RAND_KSA,
 	parameter RAND_FXOR = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K,

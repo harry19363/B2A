@@ -2,14 +2,14 @@
 
 
 module SecB2A #(
-	parameter K_WIDTH = 16,
-	parameter N_SHARES = 3,
+	parameter K_WIDTH = 32,
+	parameter N_SHARES = 8,
 	parameter MASKWIDTH = K_WIDTH * N_SHARES,
 	// A2B: CSA=(n-2)*SecAnd, KSA=2log(k-1)*SecAnd; B2A: KSA=2log(k-1)*SecAnd, FullXOR=, INIT=(n-1)
 	parameter LOG_K = $clog2(N_SHARES+1) - 1,
 	parameter RAND_INIT = N_SHARES - 1,
-	parameter RAND_CSA = 6,
-	parameter RAND_KSA = 2*$clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1),
+	parameter RAND_CSA = 74,
+	parameter RAND_KSA = 2*$clog2(K_WIDTH-1) * N_SHARES*(N_SHARES-1)/2,
 	parameter RAND_A2B = RAND_CSA + RAND_KSA,
 	parameter RAND_FXOR = (N_SHARES==1) ? 0 : LOG_K * 2**(LOG_K-1) + N_SHARES - 2**LOG_K,
 	parameter RANDNUM = RAND_INIT + RAND_A2B + RAND_KSA + RAND_FXOR
@@ -24,8 +24,8 @@ module SecB2A #(
 	output wire ovld
 );
 
-localparam DELAY_AND = 1;
-localparam DELAY_CSA = 1 * DELAY_AND;
+localparam DELAY_AND = 2;
+localparam DELAY_CSA = 4 * DELAY_AND;
 localparam DELAY_KSA = ($clog2(K_WIDTH-1) + 1) * DELAY_AND;
 
 wire [MASKWIDTH - K_WIDTH - 1 : 0] A;
@@ -87,36 +87,33 @@ generate
 endgenerate
 	
 // A2B
-SecA2B_n3 #(
+SecA2Bn8 #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
 	) SECA2B0(
-    .clk(clk),
-    .rst_n(rst_n),
-    .dvld(dvld),
-    .ena(ena),
-    .rnd(rnd[RAND_INIT*K_WIDTH +: RAND_A2B*K_WIDTH]),
+    .clk_i(clk),
+    .rst_ni(rst_n),
+    .i_dvld(dvld),
+    .i_rvld(ena),
+    .i_n(rnd[RAND_INIT*K_WIDTH +: RAND_A2B*K_WIDTH]),
     .i_a(An),
     .o_z(y),
-    .ovld(vld_A2B));
+    .o_dvld(vld_A2B));
 
 // KSA
-SecKSA #(
-	.K_WIDTH(K_WIDTH),
-	.N_SHARES(N_SHARES)
-	) SECKSA0(
-    .clk(clk),
-    .rst_n(rst_n),
-    .dvld(vld_A2B),
-    .ena(ena),
-    .rnd(rnd[(RAND_INIT + RAND_A2B)*K_WIDTH +: RAND_KSA*K_WIDTH]),
-    .x(b_r),
-    .y(y),
-    .z(z),
-    .ovld(vld_KSA));
+SecKSA_n8k32_1 SECKSA0(
+    .clk_i(clk),
+    .rst_ni(rst_n),
+    .i_dvld(vld_A2B),
+    .i_rvld(ena),
+    .i_n(rnd[(RAND_INIT + RAND_A2B)*K_WIDTH +: RAND_KSA*K_WIDTH]),
+    .i_x(b_r),
+    .i_y(y),
+    .o_z(z),
+    .o_dvld(vld_KSA));
 
 // FullXOR
-FullXOR_n3 #(
+FullXOR_n8 #(
 	.K_WIDTH(K_WIDTH),
 	.N_SHARES(N_SHARES)
 	) FXOR(
