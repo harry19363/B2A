@@ -6,7 +6,7 @@ only localparams including K_WIDTH, N_SHARES, RAND_CSA, DELAY_CSA need be modifi
 */
 module tb_SecB2A();
 
-localparam K_WIDTH = 32;
+localparam K_WIDTH = 16;
 
 localparam DELAY_AND = 1;
 localparam DELAY_KSA = ($clog2(K_WIDTH-1) + 1) * DELAY_AND;
@@ -29,7 +29,7 @@ localparam DELAY_CSA = 1 * DELAY_AND;
 
 logic clk, rst_n;
 logic dvld, ena;
-logic [MASKWIDTH-1 : 0] i_a;
+logic [MASKWIDTH-1 : 0] i_b;
 logic [MASKWIDTH-1 : 0] o_z;
 logic ovld;
 logic [RANDNUM*K_WIDTH-1 : 0] rnd;
@@ -43,14 +43,14 @@ SecB2A #(
 	.dvld(dvld),
 	.ena(ena),
 	.rnd(rnd),
-	.i_b(i_a),
+	.i_b(i_b),
 	.o_a(o_z),
 	.ovld(ovld)
 	);
 
 // Code below need not be changed
 
-logic [K_WIDTH-1 : 0] a_probe [0 : N_SHARES-1];
+logic [K_WIDTH-1 : 0] b_probe [0 : N_SHARES-1];
 logic [K_WIDTH-1 : 0] z_probe [0 : N_SHARES-1];
 logic [K_WIDTH-1 : 0] z_result;
 logic [K_WIDTH-1 : 0] z_ref;
@@ -64,7 +64,7 @@ integer i;
 always @(*)
 begin
 	for(i = 0; i < N_SHARES; i = i + 1) begin
-		i_a[i*K_WIDTH +: K_WIDTH] = a_probe[i];
+		i_b[i*K_WIDTH +: K_WIDTH] = b_probe[i];
 		z_probe[i] = o_z[i*K_WIDTH +: K_WIDTH];
 	end
 end
@@ -73,7 +73,7 @@ always @(*)
 begin
 	z_ref_t = 'b0;
 	for(i = 0; i < N_SHARES; i = i + 1) begin
-		z_ref_t = z_ref_t ^ a_probe[i];
+		z_ref_t = z_ref_t ^ b_probe[i];
 	end
 end
 
@@ -109,7 +109,7 @@ initial begin
 	dvld = 1'b0;
 	ena = 1'b0;
 	rnd = 'b0;
-	i_a = 'b0;
+	i_b = 'b0;
 	#10
 	rst_n = 1'b1;
 	dvld = 1'b1;
@@ -120,7 +120,7 @@ always #5 clk = ~clk;
 always @(negedge clk)
 begin
 	for(i = 0; i < N_SHARES; i = i + 1) begin
-		a_probe[i] <= $urandom;
+		b_probe[i] <= $urandom;
 	end
 	for(i = 0; i < RANDNUM; i = i + 1) begin
 		rnd[i*K_WIDTH +: K_WIDTH] <= $urandom;

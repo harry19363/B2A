@@ -46,7 +46,7 @@ assign tmp0[2][2 * K_WIDTH +: K_WIDTH] = i_a[2 * K_WIDTH +: K_WIDTH];
 
 // a3_reg
 lix_reg #(
-	.W(MASKWIDTH)
+	.W(K_WIDTH)
 	) u0_reg(
 	.clk_i(clk),
 	.rst_ni(rst_n),

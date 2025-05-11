@@ -2,7 +2,7 @@
 
 
 module SecB2A #(
-	parameter K_WIDTH = 32,
+	parameter K_WIDTH = 16,
 	parameter N_SHARES = 3,
 	parameter MASKWIDTH = K_WIDTH * N_SHARES,
 	// A2B: CSA=(n-2)*SecAnd, KSA=2log(k-1)*SecAnd; B2A: KSA=2log(k-1)*SecAnd, FullXOR=, INIT=(n-1)
