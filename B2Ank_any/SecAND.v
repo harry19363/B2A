@@ -26,16 +26,17 @@ module SecAND #(
 // wire
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] c [0 : N_SHARES-1] [0 : N_SHARES-2];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] c_t [0 : N_SHARES-1] [0 : N_SHARES-2];
-(*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] rnd1 [0 : N_SHARES*(N_SHARES-1)/2 - 1];
-(*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] rnd2 [0 : N_SHARES*(N_SHARES-1)/2 - 1];
-(*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] x_t [0 : N_SHARES-1];
-(*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] y_t [0 : N_SHARES-1];
+// (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] x_t [0 : N_SHARES-1];
+// (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] y_t [0 : N_SHARES-1];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] xy_t [0 : N_SHARES-1];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] u1_t [0 : N_SHARES-1] [0 : N_SHARES-2];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] u2_t0 [0 : N_SHARES-1] [0 : N_SHARES-2];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] u2_t1 [0 : N_SHARES-1] [0 : N_SHARES-2];
-(*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] z_t [0 : N_SHARES-1];
+// (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] z_t [0 : N_SHARES-1];
 (*DONT_TOUCH="yes"*) wire [K_WIDTH-1 : 0] c_xor [0 : N_SHARES-1] [0 : N_SHARES-3];
+
+wire [K_WIDTH-1 : 0] rnd1 [0 : N_SHARES*(N_SHARES-1)/2 - 1];
+wire [K_WIDTH-1 : 0] rnd2 [0 : N_SHARES*(N_SHARES-1)/2 - 1];
 
 genvar i, j;
 
@@ -50,12 +51,12 @@ generate
 endgenerate
 
 // x_t, y_t
-generate
-	for(i = 0; i < N_SHARES; i = i + 1) begin
-		assign x_t[i] = x[i*K_WIDTH +: K_WIDTH];
-		assign y_t[i] = y[i*K_WIDTH +: K_WIDTH];
-	end
-endgenerate
+// generate
+	// for(i = 0; i < N_SHARES; i = i + 1) begin
+		// assign x_t[i] = x[i*K_WIDTH +: K_WIDTH];
+		// assign y_t[i] = y[i*K_WIDTH +: K_WIDTH];
+	// end
+// endgenerate
 
 // x_reg
 // always @(posedge clk)
@@ -79,7 +80,7 @@ generate
 			.rst_ni(rst_n),
 			.i_vld(dvld),
 			.i_en(ena),
-			.i_x(x_t[i]),
+			.i_x(x[i*K_WIDTH +: K_WIDTH]),
 			.o_z(x_reg[i])
 			);
 	end
@@ -163,14 +164,14 @@ generate
 			lix_xor #(
 				.W(K_WIDTH)
 				) u4_xor(
-				.i_x(y_t[j+1]),
+				.i_x(y[(j+1)*K_WIDTH +: K_WIDTH]),
 				.i_y(rnd1[N_SHARES*i - i * (i + 1)/2 + j - i]),
 				.o_z(u1_t[i][j])
 				);
 			lix_and #(
 				.W(K_WIDTH)
 				) u5_and(
-				.i_x(~x_t[i]),
+				.i_x(~x[i*K_WIDTH +: K_WIDTH]),
 				.i_y(rnd1[N_SHARES*i - i * (i + 1)/2 + j - i]),
 				.o_z(u2_t0[i][j])
 				);
@@ -191,14 +192,14 @@ generate
 			lix_xor #(
 				.W(K_WIDTH)
 				) u7_xor(
-				.i_x(y_t[j]),
+				.i_x(y[j*K_WIDTH +: K_WIDTH]),
 				.i_y(rnd1[N_SHARES*j - j * (j + 1)/2 + i - j - 1]),
 				.o_z(u1_t[i][j])
 				);
 			lix_and #(
 				.W(K_WIDTH)
 				) u8_and(
-				.i_x(~x_t[i]),
+				.i_x(~x[i*K_WIDTH +: K_WIDTH]),
 				.i_y(rnd1[N_SHARES*j - j * (j + 1)/2 + i - j - 1]),
 				.o_z(u2_t0[i][j])
 				);
@@ -306,16 +307,16 @@ generate
 			) u16_xor(
 			.i_x(xy_reg[i]),
 			.i_y(c_xor[i][N_SHARES-3]),
-			.o_z(z_t[i])
+			.o_z(z[i * K_WIDTH +: K_WIDTH])
 			);
 	end
 endgenerate
 
-generate
-	for(i = 0; i < N_SHARES; i = i + 1) begin
-		assign z[i * K_WIDTH +: K_WIDTH] = z_t[i];
-	end
-endgenerate
+// generate
+	// for(i = 0; i < N_SHARES; i = i + 1) begin
+		// assign z[i * K_WIDTH +: K_WIDTH] = z_t[i];
+	// end
+// endgenerate
 
 
 endmodule
