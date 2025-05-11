@@ -18,7 +18,8 @@ module FullXOR_n3 #(
 	output wire ovld
 	);
 
-wire [MASKWIDTH-1:0] x_r;  // for register xxn
+wire [MASKWIDTH-1:0] x_r0;  // for register i_x
+wire [MASKWIDTH-1:0] x_r1;  // for register i_x
 
 wire [MASKWIDTH-1:0] xxn [0:LAYERS-1];  // x XOR n
 
@@ -27,22 +28,38 @@ wire [K_WIDTH-1:0] tmp[0 : N_SHARES - 2];  // for final XOR result
 // x, for N = 3
 genvar i;
 
+// register
+generate
+	for(i = 0; i < N_SHARES; i = i+1) begin
+		lix_reg #(
+			.W(K_WIDTH)
+			) u8_reg(
+			.clk_i(clk),
+			.rst_ni(rst_n),
+			.i_vld(dvld),
+			.i_en(ena),
+			.i_x(i_x[i*K_WIDTH +: K_WIDTH]),
+			.o_z(x_r0[i*K_WIDTH +: K_WIDTH])
+			);
+	end
+endgenerate
+
 // layer0
 lix_xor #(
 	.W(K_WIDTH)
 	) u0_xor(
-	.i_x(i_x[1*K_WIDTH +: K_WIDTH]),
+	.i_x(x_r0[1*K_WIDTH +: K_WIDTH]),
 	.i_y(rnd[0*K_WIDTH +: K_WIDTH]),
 	.o_z(xxn[0][1*K_WIDTH +: K_WIDTH])
 	);
 lix_xor #(
 	.W(K_WIDTH)
 	) u1_xor(
-	.i_x(i_x[2*K_WIDTH +: K_WIDTH]),
+	.i_x(x_r0[2*K_WIDTH +: K_WIDTH]),
 	.i_y(rnd[0*K_WIDTH +: K_WIDTH]),
 	.o_z(xxn[0][2*K_WIDTH +: K_WIDTH])
 	);
-assign xxn[0][0*K_WIDTH +: K_WIDTH] = i_x[0*K_WIDTH +: K_WIDTH];
+assign xxn[0][0*K_WIDTH +: K_WIDTH] = x_r0[0*K_WIDTH +: K_WIDTH];
 
 // layer1
 lix_xor #(
@@ -61,29 +78,31 @@ lix_xor #(
 	);
 assign xxn[1][2*K_WIDTH +: K_WIDTH] = xxn[0][2*K_WIDTH +: K_WIDTH];
 
-// register
-generate
-	for(i = 0; i < N_SHARES; i = i+1) begin
-		lix_reg #(
-			.W(K_WIDTH)
-			) u8_reg(
-			.clk_i(clk),
-			.rst_ni(rst_n),
-			.i_vld(dvld),
-			.i_en(ena),
-			.i_x(xxn[LAYERS-1][i*K_WIDTH +: K_WIDTH]),
-			.o_z(x_r[i*K_WIDTH +: K_WIDTH])
-			);
-	end
-endgenerate
+// // register
+// generate
+	// for(i = 0; i < N_SHARES; i = i+1) begin
+		// lix_reg #(
+			// .W(K_WIDTH)
+			// ) u8_reg(
+			// .clk_i(clk),
+			// .rst_ni(rst_n),
+			// .i_vld(dvld),
+			// .i_en(ena),
+			// .i_x(xxn[LAYERS-1][i*K_WIDTH +: K_WIDTH]),
+			// .o_z(x_r[i*K_WIDTH +: K_WIDTH])
+			// );
+	// end
+// endgenerate
+
+assign x_r1 = xxn[LAYERS-1];
 
 // XOR
 
 lix_xor #(
 	.W(K_WIDTH)
 	) u9_xor(
-	.i_x(x_r[0*K_WIDTH +: K_WIDTH]),
-	.i_y(x_r[1*K_WIDTH +: K_WIDTH]),
+	.i_x(x_r1[0*K_WIDTH +: K_WIDTH]),
+	.i_y(x_r1[1*K_WIDTH +: K_WIDTH]),
 	.o_z(tmp[0])
 	);
 
@@ -93,7 +112,7 @@ generate
 			.W(K_WIDTH)
 			) u10_xor(
 			.i_x(tmp[i]),
-			.i_y(x_r[(i+2)*K_WIDTH +: K_WIDTH]),
+			.i_y(x_r1[(i+2)*K_WIDTH +: K_WIDTH]),
 			.o_z(tmp[i+1])
 			);
 	end
